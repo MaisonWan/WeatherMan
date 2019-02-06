@@ -8,6 +8,7 @@ import com.domker.weather.util.WLog;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -41,6 +42,10 @@ public class ApiManager {
                         throwable.printStackTrace();
                     }
                 });
+    }
+
+    public Observable<List<City>> getCityListObservable() {
+        return createRetrofit(BASE_URL_CITY_LIST).create(WeatherApi.class).getCityList();
     }
 
     /**
