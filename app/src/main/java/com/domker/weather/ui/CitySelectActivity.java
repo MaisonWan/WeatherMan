@@ -133,6 +133,12 @@ public class CitySelectActivity extends AppCompatActivity {
                             showCity(cities);
                         }
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        throwable.printStackTrace();
+                        Toast.makeText(CitySelectActivity.this, "网络出现异常", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
