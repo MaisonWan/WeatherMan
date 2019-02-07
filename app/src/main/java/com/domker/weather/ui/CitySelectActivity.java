@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,7 +34,7 @@ import io.reactivex.schedulers.Schedulers;
  * <p>
  * Created by wanlipeng on 2019/2/6 12:42 AM
  */
-public class CitySelectActivity extends AppCompatActivity {
+public class CitySelectActivity extends BaseActivity {
     public static final String CITY_ID = "city_id";
     public static final String CITY_PARENT_ID = "city_parent_id";
     public static final String CITY_CODE = "city_code";
@@ -53,6 +52,7 @@ public class CitySelectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_select);
         initWidget();
+        showToolbarBack(R.id.toolBar);
         mCityDao = WeatherApplication.getWeatherDatabase().cityDao();
         loadCityListFromDb();
     }

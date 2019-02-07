@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.domker.weather.R;
@@ -30,7 +31,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityLi
     @NonNull
     @Override
     public CityListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = mLayoutInflater.inflate(R.layout.item_city_info, null);
+        View view = mLayoutInflater.inflate(R.layout.item_city_weather, null);
         view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         return new CityListViewHolder(view);
@@ -39,7 +40,7 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityLi
     @Override
     public void onBindViewHolder(@NonNull CityListViewHolder cityListViewHolder, int i) {
         SelectedCity city = mSelectedCityList.get(i);
-        cityListViewHolder.mTextView.setText(city.getCityName());
+        cityListViewHolder.mTextViewCityName.setText(city.getCityName());
     }
 
     @Override
@@ -48,11 +49,15 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityLi
     }
 
     class CityListViewHolder extends RecyclerView.ViewHolder {
-        TextView mTextView;
+        TextView mTextViewCityName;
+        TextView mTextViewTemp;
+        ImageView mImageViewIcon;
 
         CityListViewHolder(@NonNull View itemView) {
             super(itemView);
-            mTextView = itemView.findViewById(R.id.textViewName);
+            mTextViewCityName = itemView.findViewById(R.id.textViewCityName);
+            mTextViewTemp = itemView.findViewById(R.id.textViewTemp);
+            mImageViewIcon = itemView.findViewById(R.id.imageViewIcon);
         }
     }
 }

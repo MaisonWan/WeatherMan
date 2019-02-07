@@ -1,18 +1,22 @@
 package com.domker.weather.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
 import com.domker.weather.data.WeatherHandlerThread;
 import com.domker.weather.entity.SelectedCity;
+import com.domker.weather.util.IntentParser;
 import com.domker.weather.util.WLog;
 import com.yanzhenjie.recyclerview.swipe.SwipeItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
@@ -31,7 +35,7 @@ import io.reactivex.schedulers.Schedulers;
  * <p>
  * Created by wanlipeng on 2019/2/7 11:39 AM
  */
-public class CityListActivity extends AppCompatActivity {
+public class CityListActivity extends BaseActivity {
     private SwipeMenuRecyclerView mRecyclerView;
     private List<SelectedCity> mSelectedCityList;
     private CityListAdapter adapter;
@@ -40,16 +44,49 @@ public class CityListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_list);
+        showToolbarBack(R.id.toolBar);
         initWidget();
         getSelectedCity();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //写一个menu的资源文件.然后创建就行了.
+        getMenuInflater().inflate(R.menu.city_list_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0 && data != null) {
+            final SelectedCity selectedCity = IntentParser.parserSelectedCity(data);
+            if (mSelectedCityList.isEmpty()) {
+                selectedCity.setOrderId(1);
+            } else {
+                selectedCity.setOrderId(mSelectedCityList.get(mSelectedCityList.size() - 1).getOrderId() + 1);
+            }
+            mSelectedCityList.add(selectedCity);
+            adapter.notifyDataSetChanged();
+            // 存储到数据库中
+            saveCityList();
+        }
+    }
+
     private void initWidget() {
+        if (getToolbar() != null) {
+            getToolbar().setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    startSelectCityActivity();
+                    return true;
+                }
+            });
+        }
         mRecyclerView = findViewById(R.id.recyclerViewCityList);
         // 默认构造，传入颜色即可。
         int color = getResources().getColor(R.color.light_blue);
-        RecyclerView.ItemDecoration itemDecoration = new DefaultItemDecoration(color);
-        mRecyclerView.addItemDecoration(itemDecoration);
+        mRecyclerView.addItemDecoration(new DefaultItemDecoration(color));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setItemViewSwipeEnabled(true);
@@ -57,6 +94,7 @@ public class CityListActivity extends AppCompatActivity {
         mRecyclerView.setSwipeItemClickListener(new SwipeItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
+                // TODO 点击返回显示详细天气
 
             }
         });
@@ -84,6 +122,11 @@ public class CityListActivity extends AppCompatActivity {
         });
     }
 
+    private void startSelectCityActivity() {
+        Intent in = new Intent(this, CitySelectActivity.class);
+        startActivityForResult(in, 0);
+    }
+
     @SuppressLint("CheckResult")
     private void getSelectedCity() {
         WeatherApplication.getWeatherDatabase()
@@ -105,11 +148,9 @@ public class CityListActivity extends AppCompatActivity {
                 for (int i = 0; i < mSelectedCityList.size(); i++) {
                     mSelectedCityList.get(i).setOrderId(i + 1);
                 }
-                SelectedCity[] cities = new SelectedCity[mSelectedCityList.size()];
-                mSelectedCityList.toArray(cities);
                 WeatherApplication.getWeatherDatabase()
                         .getSelectedCityDao()
-                        .updateSelectedCity(cities);
+                        .insertSelectedCity(mSelectedCityList);
             }
         });
     }

@@ -26,7 +26,7 @@ public interface SelectedCityDao {
      * @param selectedCity
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertSelectedCity(SelectedCity... selectedCity);
+    void insertSelectedCity(List<SelectedCity> selectedCity);
 
     /**
      * 更新信息

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -13,10 +12,11 @@ import com.domker.weather.api.ApiManager;
 import com.domker.weather.data.SelectedCityDao;
 import com.domker.weather.data.WeatherHandlerThread;
 import com.domker.weather.entity.SelectedCity;
+import com.domker.weather.ui.BaseActivity;
 import com.domker.weather.ui.CityListActivity;
 import com.domker.weather.ui.CitySelectActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private TextView mTextMessage;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                     SelectedCityDao dao = WeatherApplication.getWeatherDatabase().getSelectedCityDao();
                     int max = dao.getMaxOrderId() + 1;
                     selectedCity.setOrderId(max);
-                    dao.insertSelectedCity(selectedCity);
+//                    dao.insertSelectedCity(selectedCity);
                 }
             });
         }
