@@ -1,4 +1,4 @@
-package com.domker.weather.api.entity;
+package com.domker.weather.entity;
 
 import java.util.List;
 

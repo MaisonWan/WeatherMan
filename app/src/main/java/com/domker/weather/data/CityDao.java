@@ -5,7 +5,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.domker.weather.api.entity.City;
+import com.domker.weather.entity.City;
 
 import java.util.List;
 

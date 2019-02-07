@@ -2,8 +2,8 @@ package com.domker.weather.api;
 
 import android.annotation.SuppressLint;
 
-import com.domker.weather.api.entity.City;
-import com.domker.weather.api.entity.WeatherDetail;
+import com.domker.weather.entity.City;
+import com.domker.weather.entity.WeatherDetail;
 import com.domker.weather.util.WLog;
 
 import java.util.List;

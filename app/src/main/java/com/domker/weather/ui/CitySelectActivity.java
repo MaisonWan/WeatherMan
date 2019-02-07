@@ -17,9 +17,8 @@ import android.widget.Toast;
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
 import com.domker.weather.api.ApiManager;
-import com.domker.weather.api.entity.City;
 import com.domker.weather.data.CityDao;
-import com.domker.weather.util.WLog;
+import com.domker.weather.entity.City;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +26,8 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -40,6 +36,8 @@ import io.reactivex.schedulers.Schedulers;
  * Created by wanlipeng on 2019/2/6 12:42 AM
  */
 public class CitySelectActivity extends AppCompatActivity {
+    public static final String CITY_ID = "city_id";
+    public static final String CITY_PARENT_ID = "city_parent_id";
     public static final String CITY_CODE = "city_code";
     public static final String CITY_NAME = "city_name";
 
@@ -111,26 +109,29 @@ public class CitySelectActivity extends AppCompatActivity {
         mApiManager.getCityListObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Function<List<City>, ObservableSource<List<City>>>() {
-                    @Override
-                    public ObservableSource<List<City>> apply(List<City> cities) {
-                        if (!cities.isEmpty()) {
-                            return Observable.fromArray(cities)
-                                    .zipWith(getSaveDbObservable(cities), new BiFunction<List<City>, City[], List<City>>() {
-                                        @Override
-                                        public List<City> apply(List<City> cities, City[] cities2) {
-                                            return cities;
-                                        }
-                                    });
-                        }
-                        return null;
-                    }
-                })
+//                .flatMap(new Function<List<City>, ObservableSource<List<City>>>() {
+//                    @Override
+//                    public ObservableSource<List<City>> apply(List<City> cities) {
+//                        if (!cities.isEmpty()) {
+//                            return Observable.fromArray(cities)
+//                                    .zipWith(getSaveDbObservable(cities), new BiFunction<List<City>, City[], List<City>>() {
+//                                        @Override
+//                                        public List<City> apply(List<City> cities, City[] cities2) {
+//                                            return cities;
+//                                        }
+//                                    });
+//                        }
+//                        return null;
+//                    }
+//                })
                 .subscribe(new Consumer<List<City>>() {
                     @Override
                     public void accept(List<City> cities) {
                         if (!cities.isEmpty()) {
                             showCity(cities);
+                            getSaveDbObservable(cities)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe();
                         }
                     }
                 }, new Consumer<Throwable>() {
@@ -166,7 +167,7 @@ public class CitySelectActivity extends AppCompatActivity {
         cityList = cities;
         for (City city : cities) {
             if (city.getParentId() == 0) {
-                WLog.i(city.getCityName());
+//                WLog.i(city.getCityName());
                 list.add(city);
             }
             cityNamelist.add(city.getCityName());
@@ -179,21 +180,27 @@ public class CitySelectActivity extends AppCompatActivity {
 
     private void selectCity(String cityName) {
         Intent intent = new Intent();
-        intent.putExtra(CITY_CODE, getCityCode(cityName));
-        intent.putExtra(CITY_NAME, cityName);
+        City city = getCityCode(cityName);
+        if (city != null) {
+            intent.putExtra(CITY_ID, city.getId());
+            intent.putExtra(CITY_PARENT_ID, city.getParentId());
+            intent.putExtra(CITY_CODE, city.getCityCode());
+            intent.putExtra(CITY_NAME, city.getCityName());
+        }
         setResult(0, intent);
         finish();
     }
 
-    private String getCityCode(String cityName) {
+    @Nullable
+    private City getCityCode(String cityName) {
         if (cityList == null) {
-            return "";
+            return null;
         }
         for (City city : cityList) {
             if (city.getCityName().equals(cityName)) {
-                return city.getCityCode();
+                return city;
             }
         }
-        return "";
+        return null;
     }
 }

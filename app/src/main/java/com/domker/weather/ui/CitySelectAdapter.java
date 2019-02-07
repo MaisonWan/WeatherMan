@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.domker.weather.R;
-import com.domker.weather.api.entity.City;
+import com.domker.weather.entity.City;
 
 import java.util.List;
 

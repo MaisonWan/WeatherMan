@@ -1,4 +1,4 @@
-package com.domker.weather.api.entity;
+package com.domker.weather.entity;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;

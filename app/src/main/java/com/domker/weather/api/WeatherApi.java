@@ -1,7 +1,7 @@
 package com.domker.weather.api;
 
-import com.domker.weather.api.entity.City;
-import com.domker.weather.api.entity.WeatherDetail;
+import com.domker.weather.entity.City;
+import com.domker.weather.entity.WeatherDetail;
 
 import java.util.List;
 
