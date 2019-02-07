@@ -1,6 +1,7 @@
 package com.domker.weather.data;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -26,7 +27,7 @@ public interface SelectedCityDao {
      * @param selectedCity
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertSelectedCity(List<SelectedCity> selectedCity);
+    List<Long> insertSelectedCity(List<SelectedCity> selectedCity);
 
     /**
      * 更新信息
@@ -51,4 +52,7 @@ public interface SelectedCityDao {
      */
     @Query("select max(orderId) from SelectedCity")
     int getMaxOrderId();
+
+    @Delete
+    int deleteSelectedCity(SelectedCity city);
 }
