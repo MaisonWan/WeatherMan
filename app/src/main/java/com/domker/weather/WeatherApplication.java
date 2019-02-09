@@ -4,6 +4,8 @@ import android.app.Application;
 import android.arch.persistence.room.Room;
 
 import com.domker.weather.data.WeatherDatabase;
+import com.domker.weather.util.WLog;
+import com.tencent.mmkv.MMKV;
 
 /**
  * Created by wanlipeng on 2019/2/5 6:47 PM
@@ -15,6 +17,12 @@ public class WeatherApplication extends Application {
     public void onCreate() {
         super.onCreate();
         initDb();
+        initMMKV();
+    }
+
+    private void initMMKV() {
+        String rootDir = MMKV.initialize(this);
+        WLog.i("MMKV Root Dir: " + rootDir);
     }
 
     private void initDb() {

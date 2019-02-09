@@ -16,18 +16,14 @@ import android.widget.Toast;
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
 import com.domker.weather.api.ApiManager;
+import com.domker.weather.api.RxObserver;
+import com.domker.weather.api.RxSingleObserver;
 import com.domker.weather.data.CityDao;
+import com.domker.weather.data.DataBaseHelper;
 import com.domker.weather.entity.City;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * 选择城市列表的界面
@@ -92,56 +88,35 @@ public class CitySelectActivity extends BaseActivity {
 
     @SuppressLint("CheckResult")
     private void loadCityListFromDb() {
-        mCityDao.queryAllCities()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<City>>() {
-                    @Override
-                    public void accept(List<City> cities) throws Exception {
-                        if (cities.isEmpty()) {
-                            loadCityListFromNet();
-                        } else {
-                            showCity(cities);
-                        }
-                    }
-                });
+        DataBaseHelper.getAllCities(new RxSingleObserver<List<City>>() {
+            @Override
+            public void onSuccess(List<City> cities) {
+                if (cities.isEmpty()) {
+                    loadCityListFromNet();
+                } else {
+                    showCity(cities);
+                }
+            }
+        });
     }
 
     @SuppressLint("CheckResult")
     private void loadCityListFromNet() {
-        mApiManager.getCityListObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<City>>() {
-                    @Override
-                    public void accept(List<City> cities) {
-                        if (!cities.isEmpty()) {
-                            showCity(cities);
-                            getSaveDbObservable(cities)
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe();
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        throwable.printStackTrace();
-                        Toast.makeText(CitySelectActivity.this, "网络出现异常", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private Observable<City[]> getSaveDbObservable(final List<City> cities) {
-        return Observable.create(new ObservableOnSubscribe<City[]>() {
+        mApiManager.getCityListObservable(new RxObserver<List<City>>() {
+            @Override
+            public void onSuccess(List<City> cities) {
+                if (!cities.isEmpty()) {
+                    showCity(cities);
+                    DataBaseHelper.saveCities(cities, null);
+                }
+            }
 
             @Override
-            public void subscribe(ObservableEmitter<City[]> emitter) {
-                City[] cityArray = new City[cities.size()];
-                cities.toArray(cityArray);
-                mCityDao.insertCities(cityArray);
-                emitter.onComplete();
+            public void onError(Throwable e) {
+                super.onError(e);
+                Toast.makeText(CitySelectActivity.this, "网络出现异常", Toast.LENGTH_SHORT).show();
             }
-        }).subscribeOn(Schedulers.io());
+        });
     }
 
     /**

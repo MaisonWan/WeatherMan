@@ -14,19 +14,22 @@ import android.view.ViewGroup;
 
 import com.domker.weather.R;
 import com.domker.weather.api.ApiManager;
+import com.domker.weather.api.RxObserver;
 import com.domker.weather.entity.SelectedCity;
 import com.domker.weather.entity.WeatherDetail;
-
-import io.reactivex.functions.Consumer;
+import com.google.gson.Gson;
+import com.tencent.mmkv.MMKV;
 
 /**
  * 天气的详情页
  * <p>
  * Created by wanlipeng on 2019/2/8 9:09 PM
  */
-public class WeatherDetailFragment extends BaseFragment {
+public class WeatherDetailFragmentRx extends RxBaseFragment {
     private SelectedCity mSelectedCity;
     private ApiManager mApiManager;
+    private WeatherDetail mWeatherDetail;
+    private Gson mGson = new Gson();
 
     @Nullable
     @Override
@@ -67,23 +70,62 @@ public class WeatherDetailFragment extends BaseFragment {
     @Override
     protected void onFragmentFirstVisible() {
         mApiManager = new ApiManager();
-        mApiManager.getCityDetail(mSelectedCity.getCityCode())
-                .subscribe(new Consumer<WeatherDetail>() {
-                    @Override
-                    public void accept(WeatherDetail weatherDetail) {
-                        bindData(weatherDetail);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                });
     }
 
+    @Override
+    protected void onFragmentVisibleChange(boolean isVisible) {
+        super.onFragmentVisibleChange(isVisible);
+        if (isVisible) {
+            loadData();
+        }
+    }
+
+    private void loadData() {
+        MMKV mmkv = MMKV.defaultMMKV();
+        final String cityCode = mSelectedCity.getCityCode();
+        try {
+            if (mmkv.contains(cityCode)) {
+                mWeatherDetail = mGson.fromJson(mmkv.decodeString(cityCode), WeatherDetail.class);
+                bindData(mWeatherDetail);
+            } else {
+                loadDataFromNet(cityCode);
+            }
+        } catch (Exception e) {
+            loadDataFromNet(cityCode);
+        }
+    }
+
+    private void loadDataFromNet(String cityCode) {
+        mApiManager.getCityDetail(cityCode, new RxObserver<WeatherDetail>() {
+            @Override
+            public void onSuccess(WeatherDetail weatherDetail) {
+                bindData(weatherDetail);
+                save(weatherDetail);
+            }
+        });
+    }
+
+    /**
+     * 绑定数据到显示的View
+     *
+     * @param weatherDetail 天气信息的实体类
+     */
     private void bindData(WeatherDetail weatherDetail) {
         if (weatherDetail != null && weatherDetail.getStatus() == 200) {
-
+            mWeatherDetail = weatherDetail;
+            setText(R.id.textViewTemp, weatherDetail.getData().getWendu() + "°");
+            setText(R.id.textViewType, weatherDetail.getData().getForecast().get(0).getType());
+            setText(R.id.textViewUpdateTime, weatherDetail.getCityInfo().getUpdateTime() + "更新");
         }
+    }
+
+    /**
+     * 存储信息到MMKV中
+     *
+     * @param weatherDetail
+     */
+    private void save(WeatherDetail weatherDetail) {
+        MMKV mmkv = MMKV.defaultMMKV();
+        mmkv.encode(mSelectedCity.getCityCode(), mGson.toJson(weatherDetail));
     }
 }

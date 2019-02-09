@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.TextView;
 
 /**
  * Fragment基类，封装了懒加载的实现
@@ -14,9 +15,9 @@ import android.view.View;
  * @see #onFragmentVisibleChange(boolean)
  * @see #onFragmentFirstVisible()
  */
-public abstract class BaseFragment extends Fragment {
+public abstract class RxBaseFragment extends Fragment {
 
-    private static final String TAG = BaseFragment.class.getSimpleName();
+    private static final String TAG = RxBaseFragment.class.getSimpleName();
 
     private boolean isFragmentVisible;
     private boolean isReuseView;
@@ -132,5 +133,18 @@ public abstract class BaseFragment extends Fragment {
 
     protected boolean isFragmentVisible() {
         return isFragmentVisible;
+    }
+
+    /**
+     * 根据指定id，设置TextView并显示文本
+     *
+     * @param viewId View的id
+     * @param text 显示的文本
+     */
+    protected void setText(int viewId, String text) {
+        if (getView() != null) {
+            final TextView textView = getView().findViewById(viewId);
+            textView.setText(text);
+        }
     }
 }

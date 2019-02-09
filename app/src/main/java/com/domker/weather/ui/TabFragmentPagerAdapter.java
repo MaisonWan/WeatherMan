@@ -25,7 +25,7 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
-        WeatherDetailFragment fragment = new WeatherDetailFragment();
+        WeatherDetailFragmentRx fragment = new WeatherDetailFragmentRx();
         fragment.setSelectedCity(mSelectedCityList.get(i));
         return fragment;
     }
