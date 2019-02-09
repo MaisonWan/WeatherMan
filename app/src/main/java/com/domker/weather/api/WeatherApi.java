@@ -31,5 +31,5 @@ public interface WeatherApi {
      * @return
      */
     @GET("api/weather/city/{city_id}")
-    Observable<WeatherDetail> getCityWeather(@Path("city_id") int cityId);
+    Observable<WeatherDetail> getCityWeather(@Path("city_id") String cityId);
 }

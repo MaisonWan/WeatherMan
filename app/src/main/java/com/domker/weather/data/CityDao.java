@@ -41,7 +41,7 @@ public interface CityDao {
      *
      * @return
      */
-    @Query("select * from city where parentId = 0")
+    @Query("select * from city where parentId = 0 and cityCode is not null")
     Flowable<List<City>> queryAllProvinces();
 
     @Query("select * from city where cityName = :cityName")

@@ -54,22 +54,11 @@ public class ApiManager {
      * @param cityId
      */
     @SuppressLint("CheckResult")
-    public void getCityDetail(int cityId) {
-        createRetrofit(BASE_URL_CITY_DETAIL).create(WeatherApi.class)
+    public Observable<WeatherDetail> getCityDetail(String cityId) {
+        return createRetrofit(BASE_URL_CITY_DETAIL).create(WeatherApi.class)
                 .getCityWeather(cityId)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<WeatherDetail>() {
-                    @Override
-                    public void accept(WeatherDetail weatherDetail) {
-                        WLog.i(weatherDetail.getData().getGanmao());
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                });
+                .subscribeOn(Schedulers.io());
     }
 
     private Retrofit createRetrofit(String baseUrl) {

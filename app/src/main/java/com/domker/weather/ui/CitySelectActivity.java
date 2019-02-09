@@ -45,7 +45,10 @@ public class CitySelectActivity extends BaseActivity {
     private AutoCompleteTextView mAutoCompleteTextView;
     private ImageButton mImageButton;
     private CityDao mCityDao;
-    private List<City> cityList = new ArrayList<>();
+    // 所有的城市列表，不包含省份名称
+    private List<City> allCityList = new ArrayList<>();
+    // 显示的城市列表
+    private List<City> hotCityList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,7 +65,7 @@ public class CitySelectActivity extends BaseActivity {
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectCity(cityList.get(position).getCityName());
+                selectCity(hotCityList.get(position).getCityName());
             }
         });
         mAutoCompleteTextView = findViewById(R.id.autoCityName);
@@ -74,7 +77,7 @@ public class CitySelectActivity extends BaseActivity {
                 String content = null;
                 if (TextUtils.isEmpty(cityName)) {
                     content = "城市名为空，请输入";
-                } else if (!"".equals(getCityCode(cityName))) {
+                } else if (!"".equals(getCity(cityName))) {
                     // 选择了一个存在的地方
                     selectCity(cityName);
                 } else {
@@ -109,21 +112,6 @@ public class CitySelectActivity extends BaseActivity {
         mApiManager.getCityListObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-//                .flatMap(new Function<List<City>, ObservableSource<List<City>>>() {
-//                    @Override
-//                    public ObservableSource<List<City>> apply(List<City> cities) {
-//                        if (!cities.isEmpty()) {
-//                            return Observable.fromArray(cities)
-//                                    .zipWith(getSaveDbObservable(cities), new BiFunction<List<City>, City[], List<City>>() {
-//                                        @Override
-//                                        public List<City> apply(List<City> cities, City[] cities2) {
-//                                            return cities;
-//                                        }
-//                                    });
-//                        }
-//                        return null;
-//                    }
-//                })
                 .subscribe(new Consumer<List<City>>() {
                     @Override
                     public void accept(List<City> cities) {
@@ -162,25 +150,34 @@ public class CitySelectActivity extends BaseActivity {
      * @param cities
      */
     private void showCity(List<City> cities) {
-        List<City> list = new ArrayList<>();
-        List<String> cityNamelist = new ArrayList<>();
-        cityList = cities;
+        // 自动完成的名字列表
+        List<String> allCityNameList = new ArrayList<>();
+        String[] showCityArray = getResources().getStringArray(R.array.hot_city_list);
+        allCityList.clear();
+        // 过滤省名称
         for (City city : cities) {
-            if (city.getParentId() == 0) {
-//                WLog.i(city.getCityName());
-                list.add(city);
+            if (!TextUtils.isEmpty(city.getCityCode())) {
+                allCityList.add(city);
+                allCityNameList.add(city.getCityName());
             }
-            cityNamelist.add(city.getCityName());
         }
-        mGridView.setAdapter(new CitySelectAdapter(this, list));
+        // 把热门需要展示的城市列表放入adapter
+        hotCityList.clear();
+        for (String showCity : showCityArray) {
+            City city = getCity(showCity);
+            if (city != null) {
+                hotCityList.add(city);
+            }
+        }
+        mGridView.setAdapter(new CitySelectAdapter(this, hotCityList));
         // 自动显示
         mAutoCompleteTextView.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, cityNamelist));
+                android.R.layout.simple_dropdown_item_1line, allCityNameList));
     }
 
     private void selectCity(String cityName) {
         Intent intent = new Intent();
-        City city = getCityCode(cityName);
+        City city = getCity(cityName);
         if (city != null) {
             intent.putExtra(CITY_ID, city.getId());
             intent.putExtra(CITY_PARENT_ID, city.getParentId());
@@ -192,11 +189,11 @@ public class CitySelectActivity extends BaseActivity {
     }
 
     @Nullable
-    private City getCityCode(String cityName) {
-        if (cityList == null) {
+    private City getCity(String cityName) {
+        if (allCityList == null) {
             return null;
         }
-        for (City city : cityList) {
+        for (City city : allCityList) {
             if (city.getCityName().equals(cityName)) {
                 return city;
             }
