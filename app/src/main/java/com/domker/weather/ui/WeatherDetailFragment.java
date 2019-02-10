@@ -141,21 +141,31 @@ public class WeatherDetailFragment extends RxBaseFragment {
     private void bind7DaysWeather(WeatherDetail weatherDetail) {
         if (getView() != null) {
             LinearLayout linearLayout = getView().findViewById(R.id.linearLayoutContent);
+            linearLayout.removeAllViews();
+            // 布局
             LayoutParams layoutParams = new LayoutParams(UIUtils.dip2px(getView().getContext(), 80), LayoutParams.MATCH_PARENT);
             layoutParams.leftMargin = UIUtils.dip2px(getView().getContext(), 10);
             layoutParams.rightMargin = UIUtils.dip2px(getView().getContext(), 3);
-            linearLayout.addView(createDayWeatherView(weatherDetail.getData().getYesterday()), layoutParams);
+            
+            WeatherDetail.WeatherInfo yesterday = weatherDetail.getData().getYesterday();
+            linearLayout.addView(createDayWeatherView(yesterday, weatherDetail.getDate()), layoutParams);
 
             layoutParams.leftMargin = UIUtils.dip2px(getView().getContext(), 3);
             for (WeatherDetail.WeatherInfo info : weatherDetail.getData().getForecast()) {
-                linearLayout.addView(createDayWeatherView(info), layoutParams);
+                linearLayout.addView(createDayWeatherView(info, weatherDetail.getDate()), layoutParams);
             }
         }
     }
 
-    private View createDayWeatherView(WeatherDetail.WeatherInfo info) {
+    private View createDayWeatherView(WeatherDetail.WeatherInfo info, String date) {
         View view = getLayoutInflater().inflate(R.layout.item_weather_info, null);
-        setText(view, R.id.textViewDay, info.getWeek());
+        if (date != null && date.equals(info.getYmd().replace("-", ""))) {
+            // 今天
+            setText(view, R.id.textViewDay, "今天");
+            view.setBackgroundResource(R.drawable.bg_shape_blue_press);
+        } else {
+            setText(view, R.id.textViewDay, info.getWeek());
+        }
         setText(view, R.id.textViewDate, info.getYmd().replace("2019-", ""));
         setText(view, R.id.textViewType, info.getType());
         setText(view, R.id.textViewHighTemp, info.getHigh().replace("高温", "").trim());
