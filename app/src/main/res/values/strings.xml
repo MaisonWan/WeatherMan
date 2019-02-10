@@ -3,6 +3,9 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="weather_notice">今日天气提示</string>
+    <string name="today">今天</string>
+    <string name="tomorrow">明天</string>
     <string-array name="hot_city_list">
         <item>北京</item>
         <item>天津</item>

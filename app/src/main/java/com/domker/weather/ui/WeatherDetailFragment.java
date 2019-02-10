@@ -25,7 +25,7 @@ import com.tencent.mmkv.MMKV;
  * <p>
  * Created by wanlipeng on 2019/2/8 9:09 PM
  */
-public class WeatherDetailFragmentRx extends RxBaseFragment {
+public class WeatherDetailFragment extends RxBaseFragment {
     private SelectedCity mSelectedCity;
     private ApiManager mApiManager;
     private WeatherDetail mWeatherDetail;
@@ -113,9 +113,22 @@ public class WeatherDetailFragmentRx extends RxBaseFragment {
     private void bindData(WeatherDetail weatherDetail) {
         if (weatherDetail != null && weatherDetail.getStatus() == 200) {
             mWeatherDetail = weatherDetail;
+            WeatherDetail.WeatherInfo today = weatherDetail.getData().getForecast().get(0);
             setText(R.id.textViewTemp, weatherDetail.getData().getWendu() + "°");
-            setText(R.id.textViewType, weatherDetail.getData().getForecast().get(0).getType());
+            setText(R.id.textViewType, today.getType());
             setText(R.id.textViewUpdateTime, weatherDetail.getCityInfo().getUpdateTime() + "更新");
+            setText(R.id.textViewWater, "湿度 " + weatherDetail.getData().getShidu());
+            setText(R.id.textViewWind, today.getFx() + today.getFl());
+            setText(R.id.textViewNotice, today.getNotice());
+
+            // 今日气温和类型
+            setText(R.id.textViewTodayType, today.getType());
+            setText(R.id.textViewTodayTemp, today.getHigh() + "/" + today.getLow());
+
+            // 明日气温和类型
+            WeatherDetail.WeatherInfo tomorrow = weatherDetail.getData().getYesterday();
+            setText(R.id.textViewTomorrowType, tomorrow.getType());
+            setText(R.id.textViewTomorrowTemp, tomorrow.getHigh() + "/" + tomorrow.getLow());
         }
     }
 
