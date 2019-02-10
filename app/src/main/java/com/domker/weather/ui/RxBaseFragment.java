@@ -147,4 +147,11 @@ public abstract class RxBaseFragment extends Fragment {
             textView.setText(text);
         }
     }
+
+    protected void setText(View view, int viewId, String text) {
+        if (view != null) {
+            final TextView textView = view.findViewById(viewId);
+            textView.setText(text);
+        }
+    }
 }

@@ -11,12 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.domker.weather.R;
 import com.domker.weather.api.ApiManager;
 import com.domker.weather.api.RxObserver;
 import com.domker.weather.entity.SelectedCity;
 import com.domker.weather.entity.WeatherDetail;
+import com.domker.weather.util.UIUtils;
 import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 
@@ -129,7 +132,38 @@ public class WeatherDetailFragment extends RxBaseFragment {
             WeatherDetail.WeatherInfo tomorrow = weatherDetail.getData().getYesterday();
             setText(R.id.textViewTomorrowType, tomorrow.getType());
             setText(R.id.textViewTomorrowTemp, tomorrow.getHigh() + "/" + tomorrow.getLow());
+
+            bind7DaysWeather(weatherDetail);
+
         }
+    }
+
+    private void bind7DaysWeather(WeatherDetail weatherDetail) {
+        if (getView() != null) {
+            LinearLayout linearLayout = getView().findViewById(R.id.linearLayoutContent);
+            LayoutParams layoutParams = new LayoutParams(UIUtils.dip2px(getView().getContext(), 80), LayoutParams.MATCH_PARENT);
+            layoutParams.leftMargin = UIUtils.dip2px(getView().getContext(), 10);
+            layoutParams.rightMargin = UIUtils.dip2px(getView().getContext(), 3);
+            linearLayout.addView(createDayWeatherView(weatherDetail.getData().getYesterday()), layoutParams);
+
+            layoutParams.leftMargin = UIUtils.dip2px(getView().getContext(), 3);
+            for (WeatherDetail.WeatherInfo info : weatherDetail.getData().getForecast()) {
+                linearLayout.addView(createDayWeatherView(info), layoutParams);
+            }
+        }
+    }
+
+    private View createDayWeatherView(WeatherDetail.WeatherInfo info) {
+        View view = getLayoutInflater().inflate(R.layout.item_weather_info, null);
+        setText(view, R.id.textViewDay, info.getWeek());
+        setText(view, R.id.textViewDate, info.getYmd().replace("2019-", ""));
+        setText(view, R.id.textViewType, info.getType());
+        setText(view, R.id.textViewHighTemp, info.getHigh().replace("高温", "").trim());
+        setText(view, R.id.textViewLowTemp, info.getLow().replace("低温", "").trim());
+        setText(view, R.id.textViewWind, info.getFx());
+        setText(view, R.id.textViewSpeed, info.getFl());
+        setText(view, R.id.textViewWeek, info.getSunset());
+        return view;
     }
 
     /**
