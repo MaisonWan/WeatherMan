@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,7 +88,8 @@ public class WeatherDetailFragment extends RxBaseFragment {
         MMKV mmkv = MMKV.defaultMMKV();
         final String cityCode = mSelectedCity.getCityCode();
         try {
-            if (mmkv.contains(cityCode)) {
+            // 获取过，并且更新时间，超过2小时
+            if (mmkv.contains(cityCode) && System.currentTimeMillis() - mmkv.decodeLong(cityCode + "_update_time") < DateUtils.HOUR_IN_MILLIS * 2) {
                 mWeatherDetail = mGson.fromJson(mmkv.decodeString(cityCode), WeatherDetail.class);
                 bindData(mWeatherDetail);
             } else {
@@ -146,7 +148,7 @@ public class WeatherDetailFragment extends RxBaseFragment {
             LayoutParams layoutParams = new LayoutParams(UIUtils.dip2px(getView().getContext(), 80), LayoutParams.MATCH_PARENT);
             layoutParams.leftMargin = UIUtils.dip2px(getView().getContext(), 10);
             layoutParams.rightMargin = UIUtils.dip2px(getView().getContext(), 3);
-            
+
             WeatherDetail.WeatherInfo yesterday = weatherDetail.getData().getYesterday();
             linearLayout.addView(createDayWeatherView(yesterday, weatherDetail.getDate()), layoutParams);
 
@@ -183,6 +185,11 @@ public class WeatherDetailFragment extends RxBaseFragment {
      */
     private void save(WeatherDetail weatherDetail) {
         MMKV mmkv = MMKV.defaultMMKV();
-        mmkv.encode(mSelectedCity.getCityCode(), mGson.toJson(weatherDetail));
+        final String cityCode = mSelectedCity.getCityCode();
+        mmkv.encode(cityCode, mGson.toJson(weatherDetail));
+        final WeatherDetail.WeatherInfo today = weatherDetail.getData().getForecast().get(0);
+        mmkv.encode(cityCode + "_max", today.getHigh());
+        mmkv.encode(cityCode + "_min", today.getLow());
+        mmkv.encode(cityCode + "_update_time", System.currentTimeMillis());
     }
 }

@@ -27,8 +27,11 @@
         </activity>
         <activity
             android:name=".ui.CitySelectActivity"
+            android:theme="@style/NormalAppTheme"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".ui.CityListActivity" />
+        <activity
+            android:name=".ui.CityListActivity"
+            android:theme="@style/NormalAppTheme" />
     </application>
 
 </manifest>

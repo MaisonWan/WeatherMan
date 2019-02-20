@@ -11,7 +11,9 @@ import android.widget.TextView;
 
 import com.domker.weather.R;
 import com.domker.weather.entity.SelectedCity;
+import com.tencent.mmkv.MMKV;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,6 +43,16 @@ public class CityListAdapter extends RecyclerView.Adapter<CityListAdapter.CityLi
     public void onBindViewHolder(@NonNull CityListViewHolder cityListViewHolder, int i) {
         SelectedCity city = mSelectedCityList.get(i);
         cityListViewHolder.mTextViewCityName.setText(city.getCityName());
+        // 获取温度
+        MMKV mmkv = MMKV.defaultMMKV();
+        System.out.println(Arrays.toString(mmkv.allKeys()));
+        final String min = mmkv.decodeString(city.getCityCode() + "_min");
+        final String max = mmkv.decodeString(city.getCityCode() + "_max");
+        if (min != null && max != null) {
+            cityListViewHolder.mTextViewTemp.setText(min + "/" + max);
+        } else {
+            cityListViewHolder.mTextViewTemp.setText("");
+        }
     }
 
     @Override
