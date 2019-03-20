@@ -1,9 +1,14 @@
 package com.domker.weather.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,6 +18,10 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
 import com.domker.weather.api.ApiManager;
@@ -21,6 +30,7 @@ import com.domker.weather.api.RxSingleObserver;
 import com.domker.weather.data.CityDao;
 import com.domker.weather.data.DataBaseHelper;
 import com.domker.weather.entity.City;
+import com.domker.weather.util.WLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +45,7 @@ public class CitySelectActivity extends BaseActivity {
     public static final String CITY_PARENT_ID = "city_parent_id";
     public static final String CITY_CODE = "city_code";
     public static final String CITY_NAME = "city_name";
+    private static final int REQUEST_CODE = 200;
 
     private ApiManager mApiManager = new ApiManager();
     private GridView mGridView;
@@ -45,6 +56,8 @@ public class CitySelectActivity extends BaseActivity {
     private List<City> allCityList = new ArrayList<>();
     // 显示的城市列表
     private List<City> hotCityList = new ArrayList<>();
+    //声明AMapLocationClient类对象
+    public AMapLocationClient mLocationClient = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +67,39 @@ public class CitySelectActivity extends BaseActivity {
         showToolbarBack(R.id.toolBar);
         mCityDao = WeatherApplication.getWeatherDatabase().cityDao();
         loadCityListFromDb();
+        initLocation();
+    }
+
+    private void initLocation() {
+        //初始化定位
+        mLocationClient = new AMapLocationClient(getApplicationContext());
+        //设置定位回调监听
+        mLocationClient.setLocationListener(new AMapLocationListener() {
+
+            @Override
+            public void onLocationChanged(AMapLocation aMapLocation) {
+                WLog.i("onLocationChanged " + aMapLocation.getDistrict());
+            }
+        });
+        AMapLocationClientOption option = new AMapLocationClientOption();
+        option.setOnceLocation(true);
+        mLocationClient.setLocationOption(option);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {//未开启定位权限
+            //开启定位权限,200是标识码
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+        } else {
+            //启动定位
+            mLocationClient.startLocation();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE && mLocationClient != null) {
+            mLocationClient.startLocation();
+        }
     }
 
     private void initWidget() {

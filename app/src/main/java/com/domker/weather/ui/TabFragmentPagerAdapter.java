@@ -1,8 +1,9 @@
 package com.domker.weather.ui;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.domker.weather.entity.SelectedCity;
 
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by wanlipeng on 2019/2/8 9:13 PM
  */
-public class TabFragmentPagerAdapter extends FragmentPagerAdapter {
+public class TabFragmentPagerAdapter extends FragmentStatePagerAdapter {
     private List<SelectedCity> mSelectedCityList;
 
     public TabFragmentPagerAdapter(FragmentManager fm, List<SelectedCity> selectedCityList) {
@@ -33,5 +34,10 @@ public class TabFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return mSelectedCityList.size();
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
     }
 }

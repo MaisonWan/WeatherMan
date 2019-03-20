@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.domker.weather.entity.SelectedCity;
 import com.domker.weather.ui.BaseActivity;
@@ -74,9 +75,14 @@ public class MainActivity extends BaseActivity {
                         if (mFragmentPagerAdapter == null) {
                             mFragmentPagerAdapter = new TabFragmentPagerAdapter(getSupportFragmentManager(), selectedCityList);
                             mViewPager.setAdapter(mFragmentPagerAdapter);
-                        } else if (selectedCityList != null) {
+                        }
+                        if (selectedCityList != null && !selectedCityList.isEmpty()) {
                             mFragmentPagerAdapter.setSelectedCityList(selectedCityList);
                             mFragmentPagerAdapter.notifyDataSetChanged();
+                        } else {
+                            Intent intent = new Intent(MainActivity.this, CityListActivity.class);
+                            startActivityForResult(intent, 0);
+                            Toast.makeText(MainActivity.this, "请选择城市", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -90,4 +96,9 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    public void onSelectedCity(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 0) {
+            updateWeatherData();
+        }
+    }
 }

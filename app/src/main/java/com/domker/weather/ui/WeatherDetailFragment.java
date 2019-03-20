@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
+import com.domker.weather.MainActivity;
 import com.domker.weather.R;
 import com.domker.weather.api.ApiManager;
 import com.domker.weather.api.RxObserver;
@@ -191,5 +192,13 @@ public class WeatherDetailFragment extends RxBaseFragment {
         mmkv.encode(cityCode + "_max", today.getHigh());
         mmkv.encode(cityCode + "_min", today.getLow());
         mmkv.encode(cityCode + "_update_time", System.currentTimeMillis());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).onSelectedCity(requestCode, resultCode, data);
+        }
     }
 }
