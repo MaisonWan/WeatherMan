@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -50,6 +51,7 @@ public class CitySelectActivity extends BaseActivity {
     private ApiManager mApiManager = new ApiManager();
     private GridView mGridView;
     private AutoCompleteTextView mAutoCompleteTextView;
+    private TextView mTextViewAutoLocationName;
     private ImageButton mImageButton;
     private CityDao mCityDao;
     // 所有的城市列表，不包含省份名称
@@ -79,6 +81,7 @@ public class CitySelectActivity extends BaseActivity {
             @Override
             public void onLocationChanged(AMapLocation aMapLocation) {
                 WLog.i("onLocationChanged " + aMapLocation.getDistrict());
+                mTextViewAutoLocationName.setText(aMapLocation.getDistrict());
             }
         });
         AMapLocationClientOption option = new AMapLocationClientOption();
@@ -108,6 +111,13 @@ public class CitySelectActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectCity(hotCityList.get(position).getCityName());
+            }
+        });
+        mTextViewAutoLocationName = findViewById(R.id.textViewAutoLocationName);
+        mTextViewAutoLocationName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectCity(((TextView)v).getText().toString());
             }
         });
         mAutoCompleteTextView = findViewById(R.id.autoCityName);
