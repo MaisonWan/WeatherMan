@@ -129,7 +129,7 @@ public class CitySelectActivity extends BaseActivity {
                 String content = null;
                 if (TextUtils.isEmpty(cityName)) {
                     content = "城市名为空，请输入";
-                } else if (!"".equals(getCity(cityName))) {
+                } else if (getCity(cityName) != null) {
                     // 选择了一个存在的地方
                     selectCity(cityName);
                 } else {

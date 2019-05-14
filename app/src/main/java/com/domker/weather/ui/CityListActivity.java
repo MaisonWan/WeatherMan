@@ -13,9 +13,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
+import com.domker.weather.api.RxHelper;
 import com.domker.weather.entity.SelectedCity;
 import com.domker.weather.util.IntentParser;
 import com.domker.weather.util.UIUtils;
@@ -43,7 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
- * 已经选择的城市列表
+ * 已经选择的城市列表，排序，添加，删除
  * <p>
  * Created by wanlipeng on 2019/2/7 11:39 AM
  */
@@ -108,7 +110,8 @@ public class CityListActivity extends BaseActivity {
             @Override
             public void onItemClick(View itemView, int position) {
                 // TODO 点击返回显示详细天气
-
+                final String selectCity = "点击了" + mSelectedCityList.get(position).getCityName();
+                Toast.makeText(CityListActivity.this, selectCity, Toast.LENGTH_SHORT).show();
             }
         });
         // 创建滑动的菜单
@@ -174,8 +177,7 @@ public class CityListActivity extends BaseActivity {
         WeatherApplication.getWeatherDatabase()
                 .getSelectedCityDao()
                 .getSelectedCityList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
+                .compose(RxHelper.<List<SelectedCity>>singleIO2Main())
                 .subscribe(new DataConsumer());
     }
 
