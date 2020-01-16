@@ -27,6 +27,10 @@ import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * 天气的详情页
@@ -180,13 +184,14 @@ public class WeatherDetailFragment extends RxBaseFragment {
     private View createDayWeatherView(WeatherDetail.WeatherInfo info, String date) {
         View view = getLayoutInflater().inflate(R.layout.item_weather_info, null);
         if (date != null && date.equals(info.getYmd().replace("-", ""))) {
-            // 今天
+//            // 今天
             setText(view, R.id.textViewDay, "今天");
             view.setBackgroundResource(R.drawable.bg_shape_blue_press);
         } else {
             setText(view, R.id.textViewDay, info.getWeek());
+            view.setBackgroundResource(R.drawable.bg_shape_dark_blue);
         }
-        setText(view, R.id.textViewDate, info.getYmd().replace("2019-", ""));
+        setText(view, R.id.textViewDate, convertShowDate(info.getYmd()));
         setText(view, R.id.textViewType, info.getType());
         setText(view, R.id.textViewHighTemp, info.getHigh().replace("高温", "").trim());
         setText(view, R.id.textViewLowTemp, info.getLow().replace("低温", "").trim());
@@ -194,6 +199,27 @@ public class WeatherDetailFragment extends RxBaseFragment {
         setText(view, R.id.textViewSpeed, info.getFl());
         setText(view, R.id.textViewWeek, info.getSunset());
         return view;
+    }
+
+    private SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+
+    /**
+     * 把yyyy-MM-dd类型的展示，转化为短的月日的展示
+     *
+     * @param ymd
+     * @return
+     */
+    private String convertShowDate(String ymd) {
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(mFormat.parse(ymd));
+            int month = calendar.get(Calendar.MONTH) + 1;
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            return month + "-" + day;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     /**

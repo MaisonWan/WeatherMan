@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
+import com.domker.weather.api.RxHelper;
 import com.domker.weather.entity.SelectedCity;
 import com.domker.weather.ui.BaseActivity;
 import com.domker.weather.ui.CityListActivity;
@@ -32,6 +33,7 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
         mViewPager = findViewById(R.id.viewPagerWeatherDetail);
+        mViewPager.setOffscreenPageLimit(7);
     }
 
     @SuppressLint("CheckResult")
@@ -39,8 +41,7 @@ public class MainActivity extends BaseActivity {
         WeatherApplication.getWeatherDatabase()
                 .getSelectedCityDao()
                 .getSelectedCityList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
+                .compose(RxHelper.<List<SelectedCity>>singleIO2Main())
                 .subscribe(new Consumer<List<SelectedCity>>() {
                     @Override
                     public void accept(List<SelectedCity> selectedCityList) {
