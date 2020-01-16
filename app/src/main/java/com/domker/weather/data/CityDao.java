@@ -37,6 +37,14 @@ public interface CityDao {
     Single<List<City>> queryAllCities();
 
     /**
+     * 查询city的数量
+     *
+     * @return
+     */
+    @Query("select count(1) from city")
+    Integer queryCityCount();
+
+    /**
      * 获取所有的省和直辖市
      *
      * @return

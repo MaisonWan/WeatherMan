@@ -25,8 +25,6 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.domker.weather.R;
 import com.domker.weather.WeatherApplication;
-import com.domker.weather.api.ApiManager;
-import com.domker.weather.api.RxObserver;
 import com.domker.weather.api.RxSingleObserver;
 import com.domker.weather.data.CityDao;
 import com.domker.weather.data.DataBaseHelper;
@@ -48,7 +46,6 @@ public class CitySelectActivity extends BaseActivity {
     public static final String CITY_NAME = "city_name";
     private static final int REQUEST_CODE = 200;
 
-    private ApiManager mApiManager = new ApiManager();
     private GridView mGridView;
     private AutoCompleteTextView mAutoCompleteTextView;
     private TextView mTextViewAutoLocationName;
@@ -117,7 +114,7 @@ public class CitySelectActivity extends BaseActivity {
         mTextViewAutoLocationName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectCity(((TextView)v).getText().toString());
+                selectCity(((TextView) v).getText().toString());
             }
         });
         mAutoCompleteTextView = findViewById(R.id.autoCityName);
@@ -147,30 +144,7 @@ public class CitySelectActivity extends BaseActivity {
         DataBaseHelper.getAllCities(new RxSingleObserver<List<City>>() {
             @Override
             public void onSuccess(List<City> cities) {
-                if (cities.isEmpty()) {
-                    loadCityListFromNet();
-                } else {
-                    showCity(cities);
-                }
-            }
-        });
-    }
-
-    @SuppressLint("CheckResult")
-    private void loadCityListFromNet() {
-        mApiManager.getCityListObservable(new RxObserver<List<City>>() {
-            @Override
-            public void onSuccess(List<City> cities) {
-                if (!cities.isEmpty()) {
-                    showCity(cities);
-                    DataBaseHelper.saveCities(cities, null);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                super.onError(e);
-                Toast.makeText(CitySelectActivity.this, "网络出现异常", Toast.LENGTH_SHORT).show();
+                showCity(cities);
             }
         });
     }

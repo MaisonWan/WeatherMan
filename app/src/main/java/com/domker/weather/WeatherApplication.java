@@ -3,6 +3,7 @@ package com.domker.weather;
 import android.app.Application;
 import android.arch.persistence.room.Room;
 
+import com.domker.weather.data.DataBaseHelper;
 import com.domker.weather.data.WeatherDatabase;
 import com.domker.weather.util.WLog;
 import com.tencent.mmkv.MMKV;
@@ -28,6 +29,8 @@ public class WeatherApplication extends Application {
     private void initDb() {
         sWeatherDatabase = Room.databaseBuilder(this, WeatherDatabase.class, "weather.db")
                 .build();
+
+        DataBaseHelper.saveCitiesFromAsset(this, null);
     }
 
     public static WeatherDatabase getWeatherDatabase() {

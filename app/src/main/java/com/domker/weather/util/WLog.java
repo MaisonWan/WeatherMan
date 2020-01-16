@@ -12,7 +12,7 @@ public final class WLog {
     private static boolean DEBUG = BuildConfig.DEBUG;
 
     public static void i(String message) {
-        if (DEBUG) {
+        if (DEBUG && message != null) {
             Log.i(TAG, message);
         }
     }

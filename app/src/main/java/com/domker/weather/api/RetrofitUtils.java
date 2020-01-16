@@ -11,7 +11,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Retrofit封装
  */
 public class RetrofitUtils {
-    static final String BASE_URL_CITY_LIST = "http://cdn.sojson.com/";
     static final String BASE_URL_CITY_DETAIL = "http://t.weather.sojson.com/";
 
     private static final int DEFAULT_TIME = 10;
@@ -57,7 +56,7 @@ public class RetrofitUtils {
 
     //返回一个泛型类
     public static <T> T getService(Class<T> service) {
-        return getInstance().getRetrofit(BASE_URL_CITY_LIST).create(service);
+        return getInstance().getRetrofit(BASE_URL_CITY_DETAIL).create(service);
     }
 
     /**

@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import com.domker.weather.entity.WeatherDetail;
 import com.domker.weather.util.UIUtils;
 import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
+
+import java.lang.reflect.Field;
 
 /**
  * 天气的详情页
@@ -65,6 +68,7 @@ public class WeatherDetailFragment extends RxBaseFragment {
                 actionBar.setDisplayShowHomeEnabled(true);
             }
         }
+        testClass();
     }
 
     public void setSelectedCity(SelectedCity selectedCity) {
@@ -110,6 +114,19 @@ public class WeatherDetailFragment extends RxBaseFragment {
             }
         });
     }
+
+    private void testClass() {
+        try {
+            Class clazz = Class.forName("com.domker.weather.entity.WeatherDetail");
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                Log.i("TestClass", field.getType() + " " + field.getName());
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * 绑定数据到显示的View
@@ -198,7 +215,7 @@ public class WeatherDetailFragment extends RxBaseFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity)getActivity()).onSelectedCity(requestCode, resultCode, data);
+            ((MainActivity) getActivity()).onSelectedCity(requestCode, resultCode, data);
         }
     }
 }
